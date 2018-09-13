@@ -1,0 +1,33 @@
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/logging_cw_api_calls_cwl.html
+
+subscriberHANDLER:
+  environment:
+    NODE_ENV: development
+    DEBUG: true
+    SUBSCRIPTION_FILTER: /aws/lambda
+    KINESIS_ARN:
+      'Fn::GetAtt':
+        - LogShipperKinesisStream
+        - Arn
+    KINESIS_ROLE_ARN:
+      'Fn::GetAtt':
+        - CWLogsToKinesisRole
+        - Arn
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - logs:PutSubscriptionFilter
+        - iam:PassRole
+      Resource: '*'
+  events:
+    - cloudwatchEvent:
+        event:
+          source:
+            - aws.logs
+          detail-type:
+            - AWS API Call via CloudTrail
+          detail:
+            eventSource:
+              - logs.amazonaws.com
+            eventName:
+              - CreateLogGroup

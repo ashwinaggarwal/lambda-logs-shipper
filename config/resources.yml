@@ -1,0 +1,32 @@
+Resources:
+  LogShipperKinesisStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: LogShipperKinesisStream
+      ShardCount: 1
+  CWLogsToKinesisRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LogShipperCWLogsToKinesisRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - logs.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: CWLogsToKinesisRolePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'kinesis:PutRecords'
+                  - 'kinesis:PutRecord'
+                Resource:
+                  Fn::GetAtt:
+                    - LogShipperKinesisStream
+                    - Arn

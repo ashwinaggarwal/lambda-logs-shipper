@@ -1,0 +1,11 @@
+shipperHANDLER:
+  environment:
+    NODE_ENV: development
+    DEBUG: true
+  events:
+    - stream:
+        type: kinesis
+        arn:
+          Fn::GetAtt:
+            - LogShipperKinesisStream
+            - Arn

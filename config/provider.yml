@@ -1,0 +1,10 @@
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 128
+  timeout: 60
+  region: eu-west-1
+package:
+  artifact: ./package.zip
+plugins:
+  - serverless-iam-roles-per-function
