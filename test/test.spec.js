@@ -22,7 +22,5 @@ const execP = (cmd) => {
 
 test('shipper handler to process data', async (t) => {
   const result = await execP('serverless invoke local --function shipperHANDLER --path test/events/shipper-kinesis.json');
-  console.log(result);
-  // const resultJson = JSON.parse(result);
-  t.snapshot('resultJson.statusCode');
+  t.snapshot(result);
 });

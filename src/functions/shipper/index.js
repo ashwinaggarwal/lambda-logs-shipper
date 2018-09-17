@@ -52,14 +52,15 @@ const parseRecords = async (records) => {
 export const handler = lambda(async (event, context, callback) => {
   const { Records: records = [] } = event;
   const parsedRecords = await parseRecords(records);
+  const parsedRecordsLength = parsedRecords.length;
 
-  if (parsedRecords.length) {
+  if (parsedRecordsLength) {
     try {
-      log(`bulk updating ${parsedRecords.length} records`);
+      log(`bulk updating ${parsedRecordsLength} records`);
       await bulk(parsedRecords);
       callback(null, {
         statusCode: 200,
-        body: 'Parsed Records'
+        body: `${parsedRecordsLength} records parsed`
       });
       return;
     } catch (ex) {
@@ -72,6 +73,6 @@ export const handler = lambda(async (event, context, callback) => {
   log('no records to update');
   callback(null, {
     statusCode: 200,
-    body: 'No records to parse'
+    body: '0 records parsed'
   });
 });
