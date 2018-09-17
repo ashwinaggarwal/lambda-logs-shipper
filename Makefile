@@ -9,7 +9,7 @@ define GetFromPackageJson
 $(shell node -p "require('./package.json').$(1)")
 endef
 
-.PHONY: clean docker docker-run package
+.PHONY: clean docker docker-run package test
 
 clean:
 	@rm -rf dist package.zip serverless.yml
@@ -61,9 +61,11 @@ build: clean docker-copy-node-node_modules
 	@mkdir -p dist
 	@./node_modules/.bin/babel ./src --out-dir dist/src --copy-files --quiet
 	@./node_modules/.bin/babel ./scripts --out-dir dist/scripts --copy-files --quiet
+	@./node_modules/.bin/babel ./test --out-dir dist/test --copy-files --quiet
 	@cp ./$(BUILD_ENV).env ./dist/.env
 	@cp ./package.json ./dist/
 	@./node_modules/.bin/babel-node ./dist/scripts/build/buildServerlessConfig.js
+	@cp ./serverless.yml ./dist/serverless.yml
 
 package: build
 	@rm -rf ./dist/scripts/
@@ -74,4 +76,5 @@ deploy:
 	@echo "Deploying to AWS via Serverless for $(ENV)"
 	@serverless deploy --verbose --region $(AWS_REGION) --stage $(ENV)
 
-
+test:
+	@./node_modules/ava/cli.js ./test/**/*.spec.js

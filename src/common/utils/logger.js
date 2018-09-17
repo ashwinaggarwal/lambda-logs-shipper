@@ -2,6 +2,8 @@ import {
   config, format, createLogger, transports
 } from 'winston';
 
+const { DEBUG, NODE_ENV } = process.env;
+
 const logger = createLogger({
   level: 'info',
   levels: config.syslog.levels,
@@ -19,11 +21,10 @@ const logger = createLogger({
 });
 
 const logWithLogger = (level, message) => {
-  const { DEBUG } = process.env;
   if (DEBUG === 'true') {
     logger.log({ level, message });
   }
 };
 
-export const log = (...message) => logWithLogger('info', message);
-export const logError = (...message) => logWithLogger('error', message);
+export const log = (...message) => logWithLogger('info', [NODE_ENV, ...message]);
+export const logError = (...message) => logWithLogger('error', [NODE_ENV, ...message]);

@@ -3,9 +3,11 @@ import zlib from 'zlib';
 import { promisify } from 'util';
 import { flatmap } from '../../common/utils';
 import { lambda } from '../../common/utils/lambda';
-import { log as logger } from '../../common/utils/logger';
+import { bulk } from '../../common/utils/elasticsearch';
+import { log as logger, logError as loggerError } from '../../common/utils/logger';
 
 const log = logger.bind('[kinesisTest]');
+const logError = loggerError.bind('[kinesisTest]');
 
 const gunzipP = promisify(zlib.gunzip);
 
@@ -25,6 +27,8 @@ const parseRecords = async (records) => {
     const dataBuffer = Buffer.from(record.kinesis.data, 'base64');
     const unzippedData = await gunzipP(dataBuffer);
 
+    log('unzippedData', unzippedData);
+
     const { logGroup, logStream, logEvents = [] } = JSON.parse(unzippedData.toString());
 
     return logEvents
@@ -34,11 +38,11 @@ const parseRecords = async (records) => {
         || logEvent.message.startsWith('END RequestId')
       ))
       .map(logEvent => ({
-        '@id': logEvent.id,
-        '@message': parseMessage(logEvent.message),
-        '@timestamp': logEvent.timestamp,
-        '@loggroup': logGroup,
-        '@logstream': logStream
+        id: logEvent.id,
+        message: parseMessage(logEvent.message),
+        loggroup: logGroup,
+        logstream: logStream,
+        timestamp: new Date(logEvent.timestamp)
       }));
   }));
 
@@ -47,13 +51,27 @@ const parseRecords = async (records) => {
 
 export const handler = lambda(async (event, context, callback) => {
   const { Records: records = [] } = event;
-
   const parsedRecords = await parseRecords(records);
 
-  log('parsedRecords', JSON.stringify(parsedRecords));
+  if (parsedRecords.length) {
+    try {
+      log(`bulk updating ${parsedRecords.length} records`);
+      await bulk(parsedRecords);
+      callback(null, {
+        statusCode: 200,
+        body: 'Parsed Records'
+      });
+      return;
+    } catch (ex) {
+      logError(ex.message, JSON.stringify(ex.stack));
+      callback(ex);
+      return;
+    }
+  }
 
+  log('no records to update');
   callback(null, {
     statusCode: 200,
-    body: parsedRecords.length ? 'Parsed Records' : 'No records to parse'
+    body: 'No records to parse'
   });
 });
