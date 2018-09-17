@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "b6788872e87f83e19c3340d22f8f84c2",
+        "sequenceNumber": "49588214921066880779085485828657138749592179093192835074",
+        "data": "H4sIAAAAAAAAE0WQT4uDMBDFv0oJe3RJouufeBPW7aV70luVJa2xDUQjJm2ziN99x27FQODx5s1vmJlQJ4zhF1H+DgKl6DMrs5/vvCiyfY48pB+9GMF2rweW0pf9qG8DuJg/DFa8OzUcGzHexagAdtBnrkphLHQ+44UdBe8g7xOaYMIwjfDx7ZCVeVHWK7n5aNuwZQm0mNvJnEc5WKn7L6mAY1B6XEjm3VzlMAC4fpLzu+jtUpyQbGBA4Jwfr0RHWewiyhxbtCNJ4IL/gg+fLJOshO0t72AZGgYxTUjEQkKIt14FmLJvdbqzkGu45bupQq0UqqEVSjfpvaS/uf7mBpsLcq56NNfzH1Az/kx6AQAA",
+        "approximateArrivalTimestamp": 1537180695000.419
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "shardId-000000000000:49588214921066880779085485828657138749592179093192835074",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::487943794540:role/lambda-logs-shipper-dev-eu-west-1-lambdaRole",
+      "awsRegion": "eu-west-1",
+      "eventSourceARN": "arn:aws:kinesis:eu-west-1:487943794540:stream/LogShipperKinesisStream"
+    }
+  ]
+}
