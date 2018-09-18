@@ -11,9 +11,6 @@ plugins:
   - serverless-iam-roles-per-function
 functions:
   shipperHANDLER:
-    environment:
-      NODE_ENV: development
-      DEBUG: true
     events:
       - stream:
           type: kinesis
@@ -21,20 +18,14 @@ functions:
             'Fn::GetAtt':
               - LogShipperKinesisStream
               - Arn
-    handler: src/functions/shipper/index.handler
-  subscriberHANDLER:
     environment:
       NODE_ENV: development
       DEBUG: true
-      SUBSCRIPTION_FILTER: /aws/lambda
-      KINESIS_ARN:
-        'Fn::GetAtt':
-          - LogShipperKinesisStream
-          - Arn
-      KINESIS_ROLE_ARN:
-        'Fn::GetAtt':
-          - CWLogsToKinesisRole
-          - Arn
+      ELASTICSEARCH_URL: 'localhost:9200'
+      ELASTICSEARCH_INDEX: cloudwatch
+      ELASTICSEARCH_TYPE: lambda
+    handler: src/functions/shipper/index.handler
+  subscriberHANDLER:
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -53,12 +44,27 @@ functions:
                 - logs.amazonaws.com
               eventName:
                 - CreateLogGroup
+    environment:
+      NODE_ENV: development
+      DEBUG: true
+      SUBSCRIPTION_FILTER: /aws/lambda
+      KINESIS_ARN:
+        'Fn::GetAtt':
+          - LogShipperKinesisStream
+          - Arn
+      KINESIS_ROLE_ARN:
+        'Fn::GetAtt':
+          - CWLogsToKinesisRole
+          - Arn
     handler: src/functions/subscriber/index.handler
   testGET:
     events:
       - http:
           method: get
           path: /test
+    environment:
+      NODE_ENV: development
+      DEBUG: true
     handler: src/functions/test/index.get
 resources:
   Resources:

@@ -1,0 +1,11 @@
+NODE_ENV: development
+DEBUG: true
+SUBSCRIPTION_FILTER: /aws/lambda
+KINESIS_ARN:
+  'Fn::GetAtt':
+    - LogShipperKinesisStream
+    - Arn
+KINESIS_ROLE_ARN:
+  'Fn::GetAtt':
+    - CWLogsToKinesisRole
+    - Arn

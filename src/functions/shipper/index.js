@@ -64,7 +64,7 @@ export const handler = lambda(async (event, context, callback) => {
       });
       return;
     } catch (ex) {
-      logError(ex.message, JSON.stringify(ex.stack));
+      logError(ex.message, ex.stack);
       callback(ex);
       return;
     }

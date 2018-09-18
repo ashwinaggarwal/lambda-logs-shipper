@@ -8,6 +8,14 @@ const cwd = process.cwd();
 
 const HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'TRACE', 'OPTIONS', 'CONNECT', 'PATCH'];
 
+const safeReadAsYaml = async (filePath, defaultYaml = {}) => {
+  if (fs.existsSync(filePath)) {
+    const data = await readFile(filePath, 'utf8');
+    return yaml.safeLoad(data);
+  }
+  return defaultYaml;
+};
+
 const addHttpEventToMethodPreConfig = (preConfig = {}, isHttpMethod) => {
   if (!isHttpMethod) {
     return preConfig;
@@ -23,16 +31,43 @@ const addHttpEventToMethodPreConfig = (preConfig = {}, isHttpMethod) => {
   };
 };
 
-const getFunctionMethodConfig = (functionName, functionPreConfig, functionSrcPath, method) => {
+const getEnvironmentForFunctionMethod = async (functionName, method) => {
+  const functionMethodEnvPath = path.join(cwd, 'config/environment', process.env.ENV, `${functionName}.yml`);
+  const functionEnv = await safeReadAsYaml(functionMethodEnvPath);
+
+  const functionOnlyEnv = Object.keys(functionEnv).reduce((env, key) => {
+    if (typeof key !== 'object') {
+      env[key] = functionEnv[key];
+    }
+    return env;
+  }, {});
+
+  if (method in functionEnv) {
+    return {
+      ...functionOnlyEnv,
+      ...functionEnv[method]
+    };
+  }
+  return Object.keys(functionOnlyEnv).length ? functionOnlyEnv : undefined;
+};
+
+const getFunctionMethodConfig = async (
+  functionName,
+  functionPreConfig,
+  functionSrcPath,
+  method
+) => {
   const methodName = `${functionName}${method.toUpperCase()}`;
   const isHttpMethod = HTTP_METHODS.indexOf(method.toUpperCase()) !== -1;
   const methodPreConfig = addHttpEventToMethodPreConfig(
     functionPreConfig[methodName], isHttpMethod
   );
+  const environment = await getEnvironmentForFunctionMethod(functionName, method);
 
   return {
     [methodName]: {
       ...methodPreConfig,
+      environment,
       handler: `${functionSrcPath}/index.${method}`,
       events: !isHttpMethod
         ? methodPreConfig.events
@@ -50,12 +85,8 @@ const getFunctionMethodConfig = (functionName, functionPreConfig, functionSrcPat
 
 const getFunctionPreConfig = async (functionName) => {
   const functionPreConfigPath = path.join(cwd, 'config/functions', `${functionName}.yml`);
-
-  if (fs.existsSync(functionPreConfigPath)) {
-    const functionSpecificConfigRaw = await readFile(functionPreConfigPath, 'utf8');
-    return yaml.safeLoad(functionSpecificConfigRaw);
-  }
-  return {};
+  const functionSpecificConfigRaw = await safeReadAsYaml(functionPreConfigPath, {});
+  return functionSpecificConfigRaw;
 };
 
 const getFunctionConfig = async (functionName) => {

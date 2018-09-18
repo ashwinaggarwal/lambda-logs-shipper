@@ -1,7 +1,4 @@
 shipperHANDLER:
-  environment:
-    NODE_ENV: development
-    DEBUG: true
   events:
     - stream:
         type: kinesis
