@@ -1,5 +1,5 @@
 NODE_ENV: development
 DEBUG: true
-ELASTICSEARCH_URL: localhost:9200
+ELASTICSEARCH_URL: 'localhost:9200'
 ELASTICSEARCH_INDEX: cloudwatch
 ELASTICSEARCH_TYPE: lambda

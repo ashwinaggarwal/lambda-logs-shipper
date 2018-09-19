@@ -6,3 +6,4 @@ shipperHANDLER:
           Fn::GetAtt:
             - LogShipperKinesisStream
             - Arn
+        batchSize: 5

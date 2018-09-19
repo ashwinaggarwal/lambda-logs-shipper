@@ -2,8 +2,8 @@ service: lambda-logs-shipper
 provider:
   name: aws
   runtime: nodejs8.10
-  memorySize: 128
-  timeout: 60
+  memorySize: 512
+  timeout: 180
   region: eu-west-1
 package:
   artifact: ./package.zip
@@ -18,6 +18,7 @@ functions:
             'Fn::GetAtt':
               - LogShipperKinesisStream
               - Arn
+          batchSize: 5
     environment:
       NODE_ENV: development
       DEBUG: true

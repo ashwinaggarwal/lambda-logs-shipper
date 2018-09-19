@@ -56,7 +56,7 @@ docker-stop:
 docker-rm: docker-stop
 	@docker ps -a --filter "name=$(PROJECT_NAME)*" -q | xargs docker rm
 
-build: BUILD_ENV = $(shell if [ "$$ENV" = "development" ]; then echo '';  else echo $$ENV; fi)
+build: BUILD_ENV = $(shell if [ "$$ENV" = "development" ]; then echo 'dev';  else echo $$ENV; fi)
 build: clean docker-copy-node-node_modules
 	@mkdir -p dist
 	@./node_modules/.bin/babel ./src --out-dir dist/src --copy-files --quiet
