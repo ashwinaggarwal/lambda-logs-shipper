@@ -66,6 +66,8 @@ export const generateServerlessConfig = async () => {
 
   await writeFile(
     path.join(cwd, 'serverless.yml'),
-    yaml.safeDump(JSON.parse(JSON.stringify(compiledServerlessYml)))
+    yaml.safeDump(JSON.parse(JSON.stringify(compiledServerlessYml)), {
+      lineWidth: 200
+    })
   );
 };

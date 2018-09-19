@@ -27,8 +27,6 @@ const parseRecords = async (records) => {
     const dataBuffer = Buffer.from(record.kinesis.data, 'base64');
     const unzippedData = await gunzipP(dataBuffer);
 
-    log('unzippedData', unzippedData);
-
     const { logGroup, logStream, logEvents = [] } = JSON.parse(unzippedData.toString());
 
     return logEvents
